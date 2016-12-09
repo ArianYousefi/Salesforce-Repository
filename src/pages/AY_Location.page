@@ -1,0 +1,30 @@
+<apex:page sidebar="false" showHeader="false" controller="AY_locController">
+<apex:includeScript value="{!$Resource.modernizr}"/>
+<script>
+function doTheGeoThang() {
+if (Modernizr.geolocation){
+navigator.geolocation.getCurrentPosition(
+function(position) {
+findMe(position.coords.latitude,position.coords.longitude);
+}
+);
+} else {
+alert ("Your browser isn't hit. Upgrade man!");
+}
+}
+</script>
+<h3>HTML 5's Geolocation API</h3>
+<apex:form >
+<span style="cursor: pointer;"
+onclick="doTheGeoThang()">Click Me - let me find you!</span>
+<br/><br/>
+<apex:actionFunction name="findMe" action="{!iFoundYou}" rerender="jsvalues">
+<apex:param name="lat" value="" assignTo="{!valueLat}"/>
+<apex:param name="long" value="" assignTo="{!valueLong}" />
+</apex:actionFunction>
+<apex:outputPanel id="jsvalues">
+<apex:outputText value="Value lat: {!valueLat}" /><br/>
+<apex:outputText value="Value long: {!valueLong}" /><br />
+</apex:outputPanel>
+</apex:form>
+</apex:page>

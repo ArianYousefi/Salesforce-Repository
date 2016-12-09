@@ -1,0 +1,30 @@
+<apex:page standardController="Order" extensions="AY_CreateOrderController">
+    <apex:sectionHeader title="Order Edit" subtitle="New Order" rendered="{! IF( order.Name == null, true, false)}"/>
+    <apex:pageMessages id="pageMessages"/>
+<apex:form >
+
+    <apex:pageBlock title="Order Edit" mode="edit">
+
+        <apex:pageBlockButtons location="top" id="cmndbtn">
+            <apex:commandButton action="{!save}" value="Save" disabled="{!If(isValidOrder== true ,false, true)}"/>
+            <apex:commandButton action="{!startRequest}" value="Request Service" reRender="responseBlock"/>
+            <apex:commandButton action="{!cancel}" value="Cancel"/>
+        </apex:pageBlockButtons>
+
+        <apex:pageBlockSection title="Order Information" columns="1">
+            <apex:inputField value="{!order.AccountId}" label="Account" required="true"/>
+            <apex:inputField value="{!order.EffectiveDate}" label="{!$ObjectType.Order.Fields.EffectiveDate.Label}" required="true"/>
+            <apex:inputField value="{!order.ContractId}" label="Contract Number" required="true"/>
+            <apex:inputField value="{!order.Status}" label="Status" required="true"/>
+            <apex:inputField value="{!order.DeliveryBlock__c}" label="Deliver Block" required="true"/>
+            <apex:inputField value="{!order.HeadercurrencyCode__c}" label="Header Currency Code" required="true"/>
+        </apex:pageBlockSection>
+
+    </apex:pageBlock>
+
+    <apex:pageBlock title="Response from Webservice" id="responseBlock">
+        <pre> {!message} </pre>
+    </apex:pageBlock>
+
+</apex:form>
+</apex:page>

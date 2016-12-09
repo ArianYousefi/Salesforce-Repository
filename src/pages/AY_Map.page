@@ -1,0 +1,104 @@
+<apex:page controller="AY_mapController" tabStyle="Contact" action="{!find}" id="page">
+    <head>
+        <style>
+            div #map_canvas { height: 400px; }
+        </style>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    </head>
+    <apex:sectionHeader title="Hello StackOverflow!" subtitle="Contact full text search + Google Maps integration" />
+    <apex:pageMessages />
+    <apex:form id="form">
+        <apex:pageBlock id="searchBlock">
+            <apex:inputText value="{!searchText}" />
+            <apex:commandButton value="Search" action="{!find}"/>
+            <p>Examples: <a href="/apex/{!$CurrentPage.Name}?q=USA">"USA"</a>, "Singapore", "Uni", "(336) 222-7000". If it works in the global search box, it will work here.</p>
+        </apex:pageBlock>
+        <apex:pageBlock title="Found {!contacts.size} Contact(s)..." rendered="{!NOT(ISNULL(contacts)) && contacts.size > 0}" id="resultsBlock">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Clear cached locations" title="Click if you want to set 'null' as geolocation info for all these contacts" action="{!clearGeocodedData}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockTable value="{!contacts}" var="c" id="contacts">
+                <apex:column headerValue="{!$ObjectType.Contact.fields.Name.label}">
+                    <apex:outputLink value="../{!c.Id}">{!c.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Address">
+                    {!c.MailingStreet} {!c.MailingCity} {!c.MailingCountry}
+                </apex:column>
+                <apex:column value="{!c.Account.Name}"/>
+                <apex:column headerValue="Location (retrieved from DB or geocoded server-side)">
+                    {!c.Location__Latitude__s}, {!c.Location__Longitude__s}
+                </apex:column>
+            </apex:pageBlockTable>
+            <apex:pageBlockSection columns="1" id="mapSection">
+                <div id="map_canvas" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Click to show/hide what was geocoded server-side and passed to JS for further manipulation" columns="1" id="debugSection">
+                <pre>{!debugContactsJson}</pre>
+            </apex:pageBlockSection>
+            <pre id="log"></pre>
+        </apex:pageBlock>
+    </apex:form>
+    <script type="text/javascript">
+    twistSection(document.getElementById('page:form:resultsBlock:debugSection').childNodes[0].childNodes[0]); // initially hide the debug section
+
+    var contacts = {!contactsJson};    // Array of contact data, some of them might have lat/long info, some we'll have to geocode client side
+    var coords = [];                   // Just the latitude/longitude for each contact
+    var requestCounter = 0;
+
+    var markers = [];                  // Red things we pin to the map.
+    var balloon = new google.maps.InfoWindow(); // Comic-like baloon that floats over markers.
+
+    function geocodeClientSide() {
+        for(var i = 0; i < contacts.length; i++) {
+            if(contacts[i].Location__Latitude__s != null && contacts[i].Location__Longitude__s != null) {
+                coords.push(new google.maps.LatLng(contacts[i].Location__Latitude__s, contacts[i].Location__Longitude__s));
+            } else {
+                ++requestCounter;
+                var address = contacts[i].MailingStreet + ' ' + contacts[i].MailingCity + ' ' + contacts[i].MailingCountry;
+                var geocoder = new google.maps.Geocoder();
+                if (geocoder) {
+                    geocoder.geocode({'address':address}, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            coords.push(results[0].geometry.location);
+                        } else {
+                            var pTag = document.createElement("p");
+                            pTag.innerHTML = status;
+                            document.getElementById('log').appendChild(pTag);
+                        }
+                        if(--requestCounter == 0) {
+                            drawMap();
+                        }
+                    });
+                }
+            }
+        }
+        // It could be the case that all was geocoded on server side (or simply retrieved from database).
+        // So if we're lucky - just proceed to drawing the map.
+        if(requestCounter == 0) {
+            drawMap();
+        }
+    }
+
+    function drawMap(){
+        var mapOptions = {
+            center: coords[0],
+            zoom: 3,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"),  mapOptions);
+
+        for(var i = 0; i < coords.length; ++i){
+            var marker = new google.maps.Marker({map: map, position: coords[i], title:contacts[i].Name, zIndex:i});
+
+            google.maps.event.addListener(marker, 'click', function() {
+                var index = this.zIndex;
+                balloon.content = '<b>'+contacts[index].Name + '</b><br/>' + contacts[index].Account.Name + '<br/>' + contacts[index].Email;
+                balloon.open(map,this);
+            });
+            markers.push(marker);
+        }
+    }
+
+    geocodeClientSide();
+    </script>
+</apex:page>

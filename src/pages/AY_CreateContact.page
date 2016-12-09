@@ -1,0 +1,33 @@
+<apex:page standardController="Contact" extensions="AY_CreateContactController">
+	<apex:sectionHeader title="Contact Edit" subtitle="New Contact" rendered="{! IF( con.Name == null, true, false)}"/>
+	<apex:pageMessages id="pageMessages"/>
+<apex:form >
+	<div class="bDescription">
+		Contacts not associated with accounts are private and cannot be viewed by other users or included in reports.
+	</div>
+    <apex:pageBlock title="Contact Edit" mode="edit">
+
+        <apex:pageBlockButtons location="top" id="cmndbtn">
+            <apex:commandButton action="{!save}" value="Save" disabled="{!If(isValidAddress == true ,false, true)}"/>
+            <apex:commandButton action="{!cancel}" value="Cancel"/>
+        </apex:pageBlockButtons>
+
+        <apex:pageBlockSection title="Contact Information" columns="1">
+            <apex:inputField value="{!Contact.FirstName}" label="{!$ObjectType.Contact.Fields.FirstName.Label}" required="false"/>
+            <apex:inputField value="{!Contact.LastName}" label="{!$ObjectType.Contact.Fields.LastName.Label}" required="true"/><apex:inputField value="{!Contact.AccountId}" label="Account" required="false"/>
+			<apex:inputField value="{!Contact.Date_of_Birth__c}" label="{!$ObjectType.Contact.Fields.Date_of_Birth__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.SSN__c}" label="{!$ObjectType.Contact.Fields.SSN__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.Line_1__c}" label="{!$ObjectType.Contact.Fields.Line_1__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.Line_2__c}" label="{!$ObjectType.Contact.Fields.Line_2__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.City__c}" label="{!$ObjectType.Contact.Fields.City__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.Country__c}" label="{!$ObjectType.Contact.Fields.Country__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.Zip_Code__c}" label="{!$ObjectType.Contact.Fields.Zip_Code__c.Label}" required="false"/>
+			<apex:inputField value="{!Contact.State__c}" label="{!$ObjectType.Contact.Fields.State__c.Label}" required="false">
+     			<apex:actionSupport event="onchange" action="{!validateResult}"/>
+			</apex:inputField>
+        </apex:pageBlockSection>
+
+    </apex:pageBlock>
+
+</apex:form>
+</apex:page>

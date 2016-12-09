@@ -1,0 +1,38 @@
+<apex:page standardController="Account" extensions="AY_AccountOrderController">  
+  <apex:pageBlock >  
+
+    <apex:pageBlockSection >  
+
+      <apex:pageBlockSectionItem >    
+        <apex:outputLabel value="Order Status" for="order_status"/>  
+        <apex:outputText value="{!orderStatus}" id="order_status"/>   
+      </apex:pageBlockSectionItem>  
+
+      <apex:pageBlockSectionItem >     
+        <apex:outputLabel value="External System Order ID" for="external_id"/>  
+        <apex:outputText value="{!Account.Order_External_Id__c}" id="external_id"/>   
+      </apex:pageBlockSectionItem>
+
+      <apex:pageBlockSectionItem >      
+        <apex:outputLabel value="Order Comments" for="order_comments"/>  
+        <apex:outputText value="{!orderComments}" id="order_comments"/>   
+      </apex:pageBlockSectionItem>
+
+      <apex:pageBlockSectionItem >      
+        <apex:outputLabel value="Order Owner" for="order_owner"/>  
+        <apex:outputText value="{!orderOwner}" id="order_owner"/>   
+      </apex:pageBlockSectionItem>
+
+    </apex:pageBlockSection>  
+
+    <apex:pageBlockButtons location="bottom">  
+    <apex:form >  
+      <apex:commandButton action="{!refreshOrderShipInfo}"  value="Refresh Order Status" id="theButton"/>  
+    </apex:form>  
+  </apex:pageBlockButtons> 
+
+  </apex:pageBlock>  
+
+
+    <apex:outputText value="Note: Clicking the Refresh Order Status button makes a REST API callout to fetch shipping information from an external application" />  
+ </apex:page>

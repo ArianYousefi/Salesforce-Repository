@@ -1,0 +1,64 @@
+<apex:page controller="AY_ContactSearchController_v2" action="{!searchContact}" >
+  <script type="text/javascript">
+      window.onload=function() {
+      // document.getElementById("{!$Component.thePb.thepbs.accName}").focus();
+      }   
+  </script>
+
+  <apex:form >
+
+    <apex:pageBlock id="thePb" title="Contact Details To Search">
+     
+      <apex:pageblockSection id="thepbs">
+        <apex:inputField value="{!con.FirstName}" required="false"/>
+        <apex:inputField value="{!con.LastName}" required="false"/>
+        <apex:inputField value="{!con.Zip_Code__c}" required="false"/>
+        <apex:inputField value="{!con.State__c}" required="false"/>
+        <apex:inputField value="{!con.SSN__c}" required="false"/>
+        <apex:inputField value="{!con.Date_of_Birth__c}" required="false"/>
+      </apex:pageblockSection>
+
+      <apex:pageblockButtons location="bottom">
+        <apex:commandButton value="Search" action="{!searchContact}" />
+      </apex:pageblockButtons>  
+
+    </apex:pageBlock>
+  
+    <apex:pageBlock title="Contact Details" id="noRec" rendered="{! IF( contactList != null && contactList.size ==0 , true, false)}" >
+      <apex:outputPanel >
+        <h1>No Records Found </h1>
+      </apex:outputPanel>
+    </apex:pageBlock>
+
+  
+    <apex:pageBlock title="Contact Details" id="details" rendered="{! IF( contactList != null && contactList.size >0, true, false)}" >
+
+      <apex:pageBlockTable value="{!contactList}" var="c">
+        <apex:column headerValue="Contact Name">
+          <apex:outputLink target="_blank" value="/{!c.id}">{!c.FirstName}</apex:outputLink> 
+        </apex:column>  
+
+        <!--  If you want facet style you can add like this.
+        <apex:column >
+         <apex:facet name="header">Link Name</apex:facet>
+         <apex:outputLink target="_blank" value="/{!a.id}">{!a.Name}</apex:outputLink> 
+        </apex:column>
+        -->
+        <apex:column value="{!c.LastName}" headerValue="Last Name"/>    
+        <apex:column value="{!c.State__c}" headerValue="State"/> 
+        <apex:column value="{!c.Zip_Code__c}" headerValue="Zip Code"/> 
+        <apex:column value="{!c.SSN__c}" headerValue="SSN"/> 
+        <apex:column value="{!c.Date_of_Birth__c}" headerValue="DOB"/> 
+      </apex:pageBlockTable>
+     
+      <apex:pageblockButtons >
+        <apex:commandButton value="First Page" rerender="details" action="{!FirstPage}" disabled="{!prev}"/>
+        <apex:commandButton value="Previous" rerender="details" action="{!previous}" disabled="{!prev}"/>
+        <apex:commandButton value="Next" rerender="details" action="{!next}" disabled="{!nxt}"/>
+        <apex:commandButton value="Last Page" rerender="details" action="{!LastPage}" disabled="{!nxt}"/>
+      </apex:pageblockButtons>
+   
+    </apex:pageBlock>
+
+  </apex:form>
+</apex:page>
